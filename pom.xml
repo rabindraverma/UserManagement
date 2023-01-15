@@ -15,7 +15,9 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>1.8</java.version>
-		 <hibernate.version>5.6.5.Final</hibernate.version>
+<!--		<sonar.host.url>http://18.218.63.179:9000/</sonar.host.url>-->
+<!--		<sonar.login>admin</sonar.login>-->
+<!--		<sonar.password>admin</sonar.password>-->
 	</properties>
 	<dependencies>
 		<dependency>

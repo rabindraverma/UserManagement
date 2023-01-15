@@ -23,7 +23,7 @@ public class UserRestController {
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody LoginForm form) {
 		String status = userMgmtService.login(form);
-		return new ResponseEntity<String>(status, HttpStatus.OK);
+		return new ResponseEntity<>(status, HttpStatus.OK);
 
 	}
 
@@ -49,20 +49,20 @@ public class UserRestController {
 
 	@PostMapping("/user")
 	public ResponseEntity<String> registerUser(@RequestBody UserForm userForm) throws Exception {
-		return new ResponseEntity<String>(userMgmtService.registerUser(userForm), HttpStatus.CREATED);
+		return new ResponseEntity<>(userMgmtService.registerUser(userForm), HttpStatus.CREATED);
 
 	}
 
 	@PostMapping("/unlock")
 	public ResponseEntity<String> unlockAccount(@RequestBody UnlockAccountForm unlockAccForm) {
 		String status = userMgmtService.unlockAccount(unlockAccForm);
-		return new ResponseEntity<String>(status, HttpStatus.OK);
+		return new ResponseEntity<>(status, HttpStatus.OK);
 
 	}
 
 	@GetMapping("/forgotpwd/{email}")
 	public ResponseEntity<String> forgetPwd(@PathVariable String email) throws Exception {
 		String status = userMgmtService.forgotPwd(email);
-		return new ResponseEntity<String>(status, HttpStatus.OK);
+		return new ResponseEntity<>(status, HttpStatus.OK);
 	}
 }

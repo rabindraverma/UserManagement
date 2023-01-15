@@ -39,6 +39,8 @@ public class UserMgmtServiceImpl implements UserMgmtService {
 	@Autowired
 	private EmailUtils emailUtil;
 
+	private Random random = new Random();
+
 	@Override
 	public String checkEmail(String email) {
 		User user = userRepo.findByEmail(email);
@@ -50,9 +52,9 @@ public class UserMgmtServiceImpl implements UserMgmtService {
 	public Map<Integer, String> getCountries() {
 		List<CountryMaster> countries = countryRepo.findAll();
 		Map<Integer, String> countryMap = new HashMap<>();
-		countries.forEach(country -> {
-			countryMap.put(country.getCountryId(), country.getCountryName());
-		});
+		countries.forEach(country ->
+			countryMap.put(country.getCountryId(), country.getCountryName())
+		);
 		return countryMap;
 	}
 
@@ -60,9 +62,9 @@ public class UserMgmtServiceImpl implements UserMgmtService {
 	public Map<Integer, String> getStates(Integer countryId) {
 		List<StateMaster> states = stateRepo.findByCountryId(countryId);
 		Map<Integer, String> countryMap = new HashMap<>();
-		states.forEach(c -> {
-			countryMap.put(c.getStateId(), c.getStateName());
-		});
+		states.forEach(c ->
+			countryMap.put(c.getStateId(), c.getStateName())
+		);
 		return countryMap;
 	}
 
@@ -70,9 +72,9 @@ public class UserMgmtServiceImpl implements UserMgmtService {
 	public Map<Integer, String> getCities(Integer stateId) {
 		List<CityMaster> cities = cityRepo.findByStateId(stateId);
 		Map<Integer, String> cityMap = new HashMap<>();
-		cities.forEach(c -> {
-			cityMap.put(c.getCityId(), c.getCityName());
-		});
+		cities.forEach(c ->
+			cityMap.put(c.getCityId(), c.getCityName())
+		);
 		return cityMap;
 	}
 
@@ -135,7 +137,7 @@ public class UserMgmtServiceImpl implements UserMgmtService {
 			return "No account found";
 		}
 
-		// TODO send email to user with pwd
+		// send email to user with pwd
 		String subject = "Recover Password";
 
 		String body = readEmailBody("FORGOT_PWD_EMAIL_BODY.txt", user);
@@ -148,7 +150,7 @@ public class UserMgmtServiceImpl implements UserMgmtService {
 	private String generateRandomPassword() {
 		String text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
-		Random random = new Random();
+
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 1; i <= 6; i++) {
@@ -159,7 +161,7 @@ public class UserMgmtServiceImpl implements UserMgmtService {
 	}
 
 	private String readEmailBody(String fileName, User user) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
 
 			lines.forEach(line -> {

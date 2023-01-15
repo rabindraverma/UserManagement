@@ -6,8 +6,9 @@ Please find your password below <br/>
 
 <br/>
 
-Your password : ${PWD}
- 
+Your password : <pre style: color="red">${PWD} <pre/>
+
+
  <br/>
  Thanks<br/>
  Ashok IT<br/>
