@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,155 +30,156 @@ import com.user.util.EmailUtils;
 @Service
 public class UserMgmtServiceImpl implements UserMgmtService {
 
-	@Autowired
-	private UserRepository userRepo;
-	@Autowired
-	private CountryRepository countryRepo;
-	@Autowired
-	private StateRepository stateRepo;
-	@Autowired
-	private CityRepository cityRepo;
-	@Autowired
-	private EmailUtils emailUtil;
+    @Autowired
+    private UserRepository userRepo;
+    @Autowired
+    private CountryRepository countryRepo;
+    @Autowired
+    private StateRepository stateRepo;
+    @Autowired
+    private CityRepository cityRepo;
+    @Autowired
+    private EmailUtils emailUtil;
 
-	private Random random = new Random();
+    Logger logger= LoggerFactory.getLogger(UserMgmtServiceImpl.class);
 
-	@Override
-	public String checkEmail(String email) {
-		User user = userRepo.findByEmail(email);
-		return user == null ? "UNIQUE" : "DUBLICATE";
+    private Random random = new Random();
 
-	}
+    @Override
+    public String checkEmail(String email) {
+        User user = userRepo.findByEmail(email);
+        return user == null ? "UNIQUE" : "DUPLICATE";
 
-	@Override
-	public Map<Integer, String> getCountries() {
-		List<CountryMaster> countries = countryRepo.findAll();
-		Map<Integer, String> countryMap = new HashMap<>();
-		countries.forEach(country ->
-			countryMap.put(country.getCountryId(), country.getCountryName())
-		);
-		return countryMap;
-	}
+    }
 
-	@Override
-	public Map<Integer, String> getStates(Integer countryId) {
-		List<StateMaster> states = stateRepo.findByCountryId(countryId);
-		Map<Integer, String> countryMap = new HashMap<>();
-		states.forEach(c ->
-			countryMap.put(c.getStateId(), c.getStateName())
-		);
-		return countryMap;
-	}
+    @Override
+    public Map<Integer, String> getCountries() {
+        List<CountryMaster> countries = countryRepo.findAll();
+        Map<Integer, String> countryMap = new HashMap<>();
+        countries.forEach(country ->
+                countryMap.put(country.getCountryId(), country.getCountryName())
+        );
+        return countryMap;
+    }
 
-	@Override
-	public Map<Integer, String> getCities(Integer stateId) {
-		List<CityMaster> cities = cityRepo.findByStateId(stateId);
-		Map<Integer, String> cityMap = new HashMap<>();
-		cities.forEach(c ->
-			cityMap.put(c.getCityId(), c.getCityName())
-		);
-		return cityMap;
-	}
+    @Override
+    public Map<Integer, String> getStates(Integer countryId) {
+        List<StateMaster> states = stateRepo.findByCountryId(countryId);
+        Map<Integer, String> countryMap = new HashMap<>();
+        states.forEach(c ->
+                countryMap.put(c.getStateId(), c.getStateName())
+        );
+        return countryMap;
+    }
 
-	@Override
-	public String registerUser(UserForm userForm) throws Exception {
+    @Override
+    public Map<Integer, String> getCities(Integer stateId) {
+        List<CityMaster> cities = cityRepo.findByStateId(stateId);
+        Map<Integer, String> cityMap = new HashMap<>();
+        cities.forEach(c ->
+                cityMap.put(c.getCityId(), c.getCityName())
+        );
+        return cityMap;
+    }
 
-		// copy data from binding object to entity object
-		User entity = new User();
-		BeanUtils.copyProperties(userForm, entity);
-		// generate and Set random Password
-		entity.setUserPwd(generateRandomPassword());
+    @Override
+    public String registerUser(UserForm userForm) throws Exception {
 
-		// set account status as locked
-		entity.setAccStatus("LOCKED");
+        // copy data from binding object to entity object
+        User entity = new User();
+        BeanUtils.copyProperties(userForm, entity);
+        // generate and Set random Password
+        entity.setUserPwd(generateRandomPassword());
 
-		userRepo.save(entity);
+        // set account status as locked
+        entity.setAccStatus("LOCKED");
 
-		// send email to unlock account
-		String to = userForm.getEmail();
-		String subject = "Registration Email";
-		String body = readEmailBody("REG_EMAIL_BODY.txt", entity);
+        userRepo.save(entity);
 
-		emailUtil.sendEmail(to, subject, body);
+        // send email to unlock account
+        String to = userForm.getEmail();
+        String subject = "Registration Email";
+        String body = readEmailBody("REG_EMAIL_BODY.txt", entity);
 
-		return "User Account Created";
-	}
+        emailUtil.sendEmail(to, subject, body);
 
-	@Override
-	public String unlockAccount(UnlockAccountForm unlockAccForm) {
-		String email = unlockAccForm.getEmail();
-		User user = userRepo.findByEmail(email);
+        return "User Account Created";
+    }
 
-		if (user != null && user.getUserPwd().equals(unlockAccForm.getTempPwd())) {
-			user.setUserPwd(unlockAccForm.getNewPwd());
-			user.setAccStatus("UNLOCKED");
-			userRepo.save(user);
-			return "Account Unlocked";
-		}
-		return "Invalid Temporary Password";
-	}
+    @Override
+    public String unlockAccount(UnlockAccountForm unlockAccForm) {
+        String email = unlockAccForm.getEmail();
+        User user = userRepo.findByEmail(email);
 
-	@Override
-	public String login(LoginForm loginForm) {
-		User user = userRepo.findByEmailAndUserPwd(loginForm.getEmail(), loginForm.getPwd());
+        if (user != null && user.getUserPwd().equals(unlockAccForm.getTempPwd())) {
+            user.setUserPwd(unlockAccForm.getNewPwd());
+            user.setAccStatus("UNLOCKED");
+            userRepo.save(user);
+            return "Account Unlocked";
+        }
+        return "Invalid Temporary Password";
+    }
 
-		if (user == null) {
-			return "Invalid Credentials";
-		}
-		if (user.getAccStatus().equals("LOCKED")) {
-			return "Account Locked";
-		}
-		return "SUCESS";
-	}
+    @Override
+    public String login(LoginForm loginForm) {
+        User user = userRepo.findByEmailAndUserPwd(loginForm.getEmail(), loginForm.getPwd());
 
-	@Override
-	public String forgotPwd(String email) throws Exception {
-		User user = userRepo.findByEmail(email);
+        if (user == null) {
+            return "Invalid Credentials";
+        }
+        if ("LOCKED".equals(user.getAccStatus())) {
+            return "Account Locked";
+        }
+        return "SUCCESS";
+    }
 
-		if (user == null) {
-			return "No account found";
-		}
+    @Override
+    public String forgotPwd(String email) throws Exception {
+        User user = userRepo.findByEmail(email);
 
-		// send email to user with pwd
-		String subject = "Recover Password";
+        if (user == null) {
+            return "No account found";
+        }
 
-		String body = readEmailBody("FORGOT_PWD_EMAIL_BODY.txt", user);
+        // send email to user with pwd
+        String subject = "Recover Password";
 
-		emailUtil.sendEmail(email, subject, body);
+        String body = readEmailBody("FORGOT_PWD_EMAIL_BODY.txt", user);
 
-		return "Password sent to your Registered email";
-	}
+        emailUtil.sendEmail(email, subject, body);
 
-	private String generateRandomPassword() {
-		String text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        return "Password sent to your Registered email";
+    }
 
+    private String generateRandomPassword() {
+        String text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
-		StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
-		for (int i = 1; i <= 6; i++) {
-			int index = random.nextInt(text.length());
-			sb.append(text.charAt(index));
-		}
-		return sb.toString();
-	}
+        for (int i = 1; i <= 6; i++) {
+            int index = random.nextInt(text.length());
+            sb.append(text.charAt(index));
+        }
+        return sb.toString();
+    }
 
-	private String readEmailBody(String fileName, User user) {
-		StringBuilder sb = new StringBuilder();
-		try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
+    private String readEmailBody(String fileName, User user) {
+        StringBuilder sb = new StringBuilder();
+        try (Stream<String> lines = Files.lines(Paths.get(fileName))) {
 
-			lines.forEach(line -> {
-				line = line.replace("${FNAME}", user.getFName());
-				line = line.replace("${LNAME}", user.getLName());
-				line = line.replace("${TEMP_PWD}", user.getUserPwd());
-				line = line.replace("${EMAIL}", user.getEmail());
-				line = line.replace("${PWD}", user.getUserPwd());
-				sb.append(line);
-			});
+            lines.forEach(line -> {
+                line = line.replace("${FNAME}", user.getFName());
+                line = line.replace("${LNAME}", user.getLName());
+                line = line.replace("${TEMP_PWD}", user.getUserPwd());
+                line = line.replace("${EMAIL}", user.getEmail());
+                line = line.replace("${PWD}", user.getUserPwd());
+                sb.append(line);
+            });
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return sb.toString();
-	}
+        } catch (Exception e) {
+            logger.error("Exception :: " + e.getMessage(), e);
+        }
+        return sb.toString();
+    }
 
 }

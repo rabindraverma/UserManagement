@@ -1,6 +1,5 @@
 package com.user.binding;
 
-
 import lombok.Data;
 
 @Data

@@ -10,9 +10,9 @@ import lombok.Data;
 @Data
 @Table(name = "COUNTRY_MASTER")
 public class CountryMaster {
-	
-	@Id
-	private int countryId;
-	private String countryName;
+
+    @Id
+    private int countryId;
+    private String countryName;
 
 }

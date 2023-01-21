@@ -7,23 +7,22 @@ import com.user.binding.UnlockAccountForm;
 import com.user.binding.UserForm;
 
 public interface UserMgmtService {
-	
-	public String checkEmail (String email);
 
-	public Map<Integer, String> getCountries ( ) ;
+    public String checkEmail(String email);
 
-	public Map<Integer, String> getStates (Integer countryId);
+    public Map<Integer, String> getCountries();
 
-	public Map<Integer, String> getCities (Integer stateId);
+    public Map<Integer, String> getStates(Integer countryId);
 
-	public String registerUser (UserForm userForm) throws Exception;
+    public Map<Integer, String> getCities(Integer stateId);
 
-	public String unlockAccount (UnlockAccountForm unlockAccForm);
+    public String registerUser(UserForm userForm) throws Exception;
 
-	public String login (LoginForm loginForm);
+    public String unlockAccount(UnlockAccountForm unlockAccForm);
 
-	public String forgotPwd (String email) throws Exception;
-	
+    public String login(LoginForm loginForm);
+
+    public String forgotPwd(String email) throws Exception;
 
 
 }

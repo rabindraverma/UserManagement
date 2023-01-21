@@ -10,10 +10,10 @@ import lombok.Data;
 @Data
 @Table(name = "CITY_MASTER")
 public class CityMaster {
-	
-	@Id
-	private Integer cityId;
-	private String cityName;
-	private Integer stateId;
+
+    @Id
+    private Integer cityId;
+    private String cityName;
+    private Integer stateId;
 
 }
